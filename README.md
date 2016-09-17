@@ -3,7 +3,7 @@
 Paas (Platform As A Service) implementation on OpenStack to crowd source the sensing data by virtualizing the physical sensor to solve the sensor sharing problem Providing User level Multi-Tenancy by deploying Virtual Sensors on Docker Containers.
 
 ### Tech
-  - OppenStack
+  - OpenStack
   - Docker
   - Go language
   - net/http
