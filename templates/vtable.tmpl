@@ -1,0 +1,12 @@
+{{define "Virtual"}}
+{{range .}}<tr>
+{{$x := .ProjectName}}
+<td>{{.SensorName}}</td>
+<td>{{.PhysicalSensor}}</td>
+<td>{{.DataFrequency}}</td>
+<td>{{.Is_Enabled}}</td>
+<td>{{.Usage}}</td>
+<td>{{.Status}}</td>
+<td>{{.Created}}</td>
+<td class="td-actions"><a href="/projects/{{.ProjectName}}/sensors/{{.SensorName}}" class="btn btn-small btn-primary">View</a><a href="javascript:;" class="btn btn-danger btn-small" style="float:right">Remove</a></td>
+{{end}}</tr>{{end}}

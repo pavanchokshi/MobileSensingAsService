@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile Sensor Cloud</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+<link href="../static/css/bootstrap-responsive.min.css" rel="stylesheet">
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600"
+        rel="stylesheet">
+<link href="../static/css/font-awesome.css" rel="stylesheet">
+<link href="../static/css/style.css" rel="stylesheet">
+<link href="../static/css/pages/dashboard.css" rel="stylesheet">
+<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container"> <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"><span
+                    class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span> </a><a class="brand" href="index.html">Mobile Sensor Cloud </a>
+      <div class="nav-collapse">
+        <ul class="nav pull-right">
+          <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i
+                            class="icon-user"></i> Welcome, Pavan ! <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="javascript:;">Profile</a></li>
+              <li><a href="javascript:;">Logout</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <!--/.nav-collapse --> 
+    </div>
+    <!-- /container --> 
+  </div>
+  <!-- /navbar-inner --> 
+</div>
+<!-- /navbar -->
+<div class="subnavbar">
+  <!-- /subnavbar-inner --> 
+</div>
+<!-- /subnavbar -->
+<div class="main">
+  <div class="main-inner">
+    <div class="container">
+      <div class="row">
+        <div class="span6">
+          <div class="widget">
+            <div class="widget-header"> <i class="icon-bookmark"></i>
+              <h3>Projects</h3>
+            </div>
+            <!-- /widget-header -->
+            <div class="widget-content">
+              <div class="shortcuts"> 
+                <a href="#myModal" data-toggle="modal" class="shortcut">
+                  <i class="shortcut-icon icon-plus"></i>
+                  <span class="shortcut-label">Add Project</span>
+                </a>
+                {{ template "Projects" . }}
+              <!-- /shortcuts --> 
+            </div>
+            <!-- /widget-content --> 
+          </div>
+          <!-- /widget -->
+        </div>
+      <!-- /row --> 
+    </div>
+    <!-- /container -->
+    <div class="span6">
+          <div class="widget">
+            <div class="widget-header"> <i class="icon-bookmark"></i>
+              <h3>Sensors</h3>
+            </div>
+            <!-- /widget-header -->
+            <div class="widget-content">
+              <div class="shortcuts"> 
+                <a href="#physicalSensorModal" data-toggle="modal" class="shortcut">
+                  <i class="shortcut-icon icon-plus"></i>
+                  <span class="shortcut-label">Add Sensor</span>
+                </a>
+                {{ template "Sensors" . }}
+              <!-- /shortcuts --> 
+            </div>
+            <!-- /widget-content --> 
+          </div>
+          <!-- /widget -->
+        </div>
+      <!-- /row --> 
+    </div> 
+  </div>
+  <!-- /main-inner -->
+  <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Create Project</h3>
+</div>
+<div class="modal-body">
+
+    <form id="add-project" class="form-horizontal" action="/addproject" method="POST">
+        <fieldset>
+            <div class="control-group">                                         
+                <label class="control-label" for="projectName">Project Name</label>
+                <div class="controls">
+                    <input type="text" class="span3" id="projectName" name="projectName">
+                </div> <!-- /controls -->               
+            </div> <!-- /control-group -->
+
+            <div class="control-group">                                         
+                <label class="control-label" for="projectDesc">Project Description</label>
+                <div class="controls">
+                    <textarea class="span3" rows="5" id="projectDesc" name="projectDesc"></textarea>
+                </div> <!-- /controls -->               
+            </div> <!-- /control-group -->
+          <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create Project</button>
+        </div>
+    </fieldset>    
+</form>
+</div> 
+</div>
+<!-- /main -->
+<div id="physicalSensorModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Create Sensor</h3>
+</div>
+<div class="modal-body">
+
+    <form id="add-physical-sensor" class="form-horizontal" action="/sensors" method="POST">
+        <fieldset>
+            <div class="control-group">                                         
+                <label class="control-label" for="sensorName">Sensor Name</label>
+                <div class="controls">
+                    <input type="text" class="span3" id="sensorName" name="sensorName">
+                </div> <!-- /controls -->               
+            </div> <!-- /control-group -->
+
+            <div class="control-group">                                         
+                <label class="control-label" for="sensorDesc">Sensor Description</label>
+                <div class="controls">
+                    <textarea class="span3" rows="5" id="sensorDesc" name="sensorDesc"></textarea>
+                </div> <!-- /controls -->               
+            </div> <!-- /control-group -->
+
+            <div class="control-group">                                         
+                <label class="control-label" for="sensorType">Sensor Type</label>
+                <div class="controls">
+                    <select class="span3" id="sensorType" name="sensorType">
+                        <option>Temperature</option>
+                        <option>Humidity</option>
+                        <option>Gyroscope</option>
+                        <option>Accelerometer</option>
+                        <option>Proximity</option>
+                    </select>
+                </div> <!-- /controls -->               
+            </div> <!-- /control-group -->
+            <div class="control-group">                                         
+                <label class="control-label">Is shared</label>
+                <div class="controls">
+                    <label class="radio inline">
+                      <input type="radio"  name="radiobtns" value="true"> Yes
+                  </label>
+                  <label class="radio inline">
+                      <input type="radio" name="radiobtns" value="false"> No
+                  </label>
+              </div>    <!-- /controls -->          
+          </div>
+          <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Sensor</button>
+        </div>
+    </fieldset>    
+</form>
+</div>
+
+<!-- Le javascript
+================================================== --> 
+<!-- Placed at the end of the document so the pages load faster --> 
+<script src="../static/js/jquery-1.7.2.min.js"></script>  
+<script src="../static/js/bootstrap.js"></script>
+<script src="js/base.js"></script> 
+</body>
+</html>

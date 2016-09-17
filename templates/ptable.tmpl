@@ -1,0 +1,7 @@
+{{define "Physical"}}
+{{range .PhysicalSensor}}<tr>
+<td>{{.SensorName}}</td>
+<td>{{.SensorType}}</td>
+<td>{{.Status}}</td>
+<td class="td-actions"><a href="javascript:;" class="btn btn-small btn-success">View</a><a href="javascript:;" class="btn btn-danger btn-small">Remove</a></td>
+{{end}}</tr>{{end}}

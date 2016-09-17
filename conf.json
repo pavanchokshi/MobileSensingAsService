@@ -1,0 +1,8 @@
+{
+  "database": {
+  	"dbtype":"mysql",
+    "user": "root",
+    "password": "root",
+    "dbname": "mobisense_db"
+  }
+}

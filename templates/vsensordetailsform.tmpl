@@ -1,0 +1,29 @@
+{{define "VSensorDetails"}}
+<form id="add-physical-sensor" class="form-horizontal">
+  <fieldset>
+    <div class="control-group">                                         
+      <label class="control-label" for="sensorId">Sensor Id</label>
+      <div class="controls">
+        <input type="text" class="span3" id="sensorId" disabled="true" value="{{.SensorId}}">
+      </div> <!-- /controls -->               
+    </div>
+
+    <div class="control-group">                                         
+      <label class="control-label" for="sensorName">Sensor Name</label>
+      <div class="controls">
+        <input type="text" class="span3" id="sensorName" disabled="true" value="{{.SensorName}}">
+      </div> <!-- /controls -->               
+    </div> <!-- /control-group -->
+
+    <div class="control-group">                                         
+      <label class="control-label" for="sensorName">Physical Sensor Name</label>
+      <div class="controls">
+        <input type="text" class="span3" id="sensorName" disabled="true" value="{{.PSensorName}}">
+      </div> <!-- /controls -->               
+    </div> <!-- /control-group -->
+      <input type="hidden" id="url" value="{{.URL}}">
+      <input type="hidden" id="freq" value="{{.Freq}}">
+     <!-- /control-group -->
+  </fieldset>    
+</form>
+{{end}}

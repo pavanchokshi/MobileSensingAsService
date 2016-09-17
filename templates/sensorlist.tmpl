@@ -1,0 +1,28 @@
+{{define "SensorList"}}
+<form id="add-virtual-sensor" class="form-horizontal" action="/projects/{{.Project.ProjectURL}}/addvirtualsensors" method="POST">
+	<fieldset>
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr><th> # </th>
+					<th> Sensor Name </th>
+					<th> Virtual Sensor Name </th>
+					<th> Sensor Type </th>
+					<th> Latitude </th>
+					<th> Longitude </th>
+				</tr>
+			</thead>
+			<tbody>
+				{{range .PhysicalList}}<tr>
+				<td><input type="checkbox" name="sensor[]" id="sensor" value="{{.SensorName}}"></td>
+				<td>{{.SensorName}}</td>
+				<td><input type="text" class= "form-control" placeholder="V-Sensor name" name = "vsensor[]" id="vsensor"></td>
+				<td>{{.SensorType}}</td>
+				<td>{{.Latitude}}</td>
+				<td>{{.Longitude}}</td>{{end}}</tr>
+			</tbody>
+		</table>
+	</fieldset>
+		<button onclick="window.location='/project'" class="btn" >Cancel</button>
+		<button type="submit" class="btn btn-primary" style="float:right">Add Sensor</button>
+	</form>
+{{end}}

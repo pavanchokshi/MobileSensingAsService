@@ -1,0 +1,290 @@
+package controller
+
+import (
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"github.com/julienschmidt/httprouter"
+	"html/template"
+	"log"
+	"model"
+	"net/http"
+	"os/exec"
+	"strconv"
+	"time"
+)
+
+type (
+	SensorController struct {
+		db *sql.DB
+	}
+)
+
+func NewSensorController(db *sql.DB) *SensorController {
+	return &SensorController{db}
+}
+
+var sensor = template.Must(template.ParseFiles(
+	"templates/addVirtualSensor.tmpl",
+	"templates/sensorlist.tmpl",
+))
+
+func (sc SensorController) GetAllSharedSensors(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	type Physical struct {
+		SensorName string
+		SensorType string
+		Latitude   string
+		Longitude  string
+	}
+
+	pcount := 0
+	// Physical Sensor Display
+	rows, err := sc.db.Query("Select count(*) from physical_sensor_metadata where is_shared=true and is_activated=true")
+	if err != nil {
+		//log.Fatal(err)
+		fmt.Println(err)
+	}
+
+	for rows.Next() {
+		rows.Scan(&pcount)
+	}
+	fmt.Println(pcount)
+	rows, err = sc.db.Query("Select sensor_name, sensor_type, latitude, longitude from physical_sensor_metadata where is_shared=true and is_activated=true")
+	if err != nil {
+		//log.Fatal(err)
+		fmt.Println(err)
+	}
+
+	phySensorList := make([]Physical, pcount)
+	index := 0
+	for rows.Next() {
+		rows.Scan(&phySensorList[index].SensorName, &phySensorList[index].SensorType, &phySensorList[index].Latitude, &phySensorList[index].Longitude)
+		fmt.Println(err)
+		fmt.Println(phySensorList[index])
+		index++
+	}
+	fmt.Println(index)
+	err = sensor.Execute(w, phySensorList)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (sc SensorController) AddSensor(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	sensor := model.Sensor{}
+	cookie, _ = r.Cookie("logged-in")
+	fmt.Println(cookie.Value)
+	// JSON to Object Marshalling
+	fmt.Println(r)
+	randId, _ := exec.Command("uuidgen").Output()
+	sensor.SensorId = string(randId)
+	sensor.SensorName = r.FormValue("sensorName")
+	sensor.SensorDesc = r.FormValue("sensorDesc")
+	sensor.SensorType = r.FormValue("sensorType")
+	sensor.IsShared, _ = strconv.ParseBool(r.FormValue("radiobtns"))
+	sensor.OwnerId = cookie.Value
+	sensor.IsActivated = false
+	sensor.RegisterTime = time.Now().UTC()
+	sensor.IsEnabled = false
+
+	stmt, err := sc.db.Prepare("Insert physical_sensor_metadata SET sensor_id=?,owner_id=?,sensor_name=?,sensor_desc=?,sensor_type=?,is_shared=?,owner_enabled=?,is_activated=?,created=?")
+	_, err = stmt.Exec(sensor.SensorId, sensor.OwnerId, sensor.SensorName, sensor.SensorDesc, sensor.SensorType, sensor.IsShared, sensor.IsEnabled, sensor.IsActivated, sensor.RegisterTime)
+	if err != nil {
+		fmt.Println(err)
+	}
+	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
+}
+
+func (sc SensorController) UpdateSensor(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	sensor := model.Sensor{}
+	sensorName := ps.ByName("sensorName")
+	var sensor_id string
+
+	// JSON to Object Marshalling
+	jsonDecoder := json.NewDecoder(r.Body)
+	err := jsonDecoder.Decode(&sensor)
+	if err != nil {
+		fmt.Errorf("Error in decoding the JSON: %v", err)
+	}
+
+	// Fetch sensor id from the Sensor Metadata table
+	row, err := sc.db.Query("Select sensor_id from physical_sensor_metadata where sensor_name=?", sensorName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for row.Next() {
+		row.Scan(&sensor_id)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+
+	// Update sensor information
+	stmt, err := sc.db.Prepare("update physical_sensor_metadata set sensor_name=?,sensor_desc=?,sensor_type=?,is_shared=? where sensor_id=?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	res, err := stmt.Exec(sensor.SensorName, sensor.SensorDesc, sensor.SensorType, sensor.IsShared, sensor_id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	affect, err := res.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(affect)
+
+}
+
+func (sc SensorController) DeleteSensor(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	sensorName := ps.ByName("sensorName")
+	var sensor_id string
+
+	// Fetch sensor id from the Sensor Metadata table
+	row, err := sc.db.Query("Select sensor_id from physical_sensor_metadata where sensor_name=?", sensorName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for row.Next() {
+		row.Scan(&sensor_id)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+
+	// Delete Sensor from the sensor Metadata table
+	stmt, err := sc.db.Prepare("delete from physical_sensor_metadata where sensor_id=?")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res, err := stmt.Exec(sensor_id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	affect, err := res.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(affect)
+
+}
+
+func (sc SensorController) GetSensorByName(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	var sensor_name string
+	var SensorType string
+	var latitude string
+	var longitude string
+	var is_activated bool
+	var owner_enabled bool
+
+	sensorName := ps.ByName("sensorName")
+	var sensor_id string
+
+	// Fetch sensor id from the Sensor Metadata table
+	row, err := sc.db.Query("Select sensor_id from physical_sensor_metadata where sensor_name=?", sensorName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for row.Next() {
+		row.Scan(&sensor_id)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+	fmt.Println(sensor_id)
+
+	// Queries the Sensor Metadata to fetch the sensor object
+	err = sc.db.QueryRow("Select sensor_name, sensor_type, latitude, longitude, is_activated, owner_enabled from physical_sensor_metadata where sensor_id=?", sensor_id).Scan(&sensor_name, &SensorType, &latitude, &longitude, &is_activated, &owner_enabled)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(sensor_name)
+	fmt.Println(SensorType)
+	fmt.Println(latitude)
+	fmt.Println(longitude)
+	fmt.Println(is_activated)
+	fmt.Println(owner_enabled)
+}
+
+func (sc SensorController) GetSensorByOwner(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	fmt.Println("inside Get Sensor by owner")
+	cookie, _ := r.Cookie("logged-in")
+	fmt.Println(cookie)
+}
+
+func (sc SensorController) AuthenticateSensor(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	sensor := model.SensorAuthenticate{}
+	var is_activated bool
+	var sensor_id string
+
+	// JSON to Object Marshalling
+	jsonDecoder := json.NewDecoder(r.Body)
+	err := jsonDecoder.Decode(&sensor)
+	if err != nil {
+		fmt.Errorf("Error in decoding the JSON: %v", err)
+	}
+
+	row, err := sc.db.Query("Select sensor_id from physical_sensor_metadata where sensor_name=?", sensor.SensorName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for row.Next() {
+		row.Scan(&sensor_id)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+
+	err = sc.db.QueryRow("Select is_activated from physical_sensor_metadata where sensor_id=?", sensor_id).Scan(&is_activated)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if is_activated {
+
+		fmt.Println("Sensor Already Activated")
+	} else {
+
+		is_activated = true
+		stmt, err := sc.db.Prepare("update physical_sensor_metadata set is_activated=? where sensor_id=?")
+		if err != nil {
+			log.Fatal(err)
+		}
+		res, err := stmt.Exec(is_activated, sensor_id)
+		if err != nil {
+			log.Fatal(err)
+		}
+		affect, err := res.RowsAffected()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(affect)
+
+		//Insert into sensor_stat table for having a map between physical and virtual sensor
+		stmt, err = sc.db.Prepare("Insert sensor_stat SET sensor_name=?,count_v_sensor=?")
+		res, err = stmt.Exec(sensor.SensorName, 0)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+}

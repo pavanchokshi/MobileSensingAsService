@@ -1,0 +1,6 @@
+{{define "Projects"}}
+<a href="javascript:;" class="shortcut">
+<i class="shortcut-icon icon-list-alt"></i>
+<span class="shortcut-label">Apps</span>
+</a>
+{{end}}
